@@ -8,9 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: V2rayNG
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -29,7 +26,7 @@ jobs:
       
     - name: Fetch AndroidLibXrayLite tag
       run: |
-        cd ../AndroidLibXrayLite
+        cd AndroidLibXrayLite
         CURRENT_TAG=$(git describe --tags --abbrev=0)
         echo "CURRENT_TAG=$CURRENT_TAG" >> $GITHUB_ENV
         
@@ -43,6 +40,7 @@ jobs:
         
     - name: Build Debug APK
       run: |
+        cd V2rayNG
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         chmod +x gradlew
         ./gradlew assembleDebug
@@ -51,4 +49,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Saturn7-VPN-Debug
-        path: V2rayNG/app/build/outputs/apk/debug/app-debug.apk
+        path: V2rayNG/app/build/outputs/apk/**/debug/*.apk
+        if-no-files-found: error
