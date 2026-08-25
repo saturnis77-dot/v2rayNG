@@ -1,45 +1,7 @@
-name: Build Saturn7 VPN APK
-
-on:
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        
-    - name: Setup Java
-      uses: actions/setup-java@v5
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
-    - name: Setup Android
-      uses: android-actions/setup-android@v4
-      
-    - name: Get libv2ray version
+- name: Find APK files
       run: |
-        cd AndroidLibXrayLite
-        echo "TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-        
-    - name: Download libv2ray.aar
-      uses: robinraju/release-downloader@v1.13
-      with:
-        repository: '2dust/AndroidLibXrayLite'
-        tag: ${{ env.TAG }}
-        fileName: 'libv2ray.aar'
-        out-file-path: V2rayNG/app/libs/
-        
-    - name: Build APK
-      run: |
-        cd V2rayNG
-        echo "sdk.dir=$ANDROID_HOME" > local.properties
-        chmod +x gradlew
-        ./gradlew assembleDebug
+        echo "🔍 Ищем APK файлы..."
+        find V2rayNG/app/build/outputs/apk -name "*.apk" -type f || true
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
@@ -47,3 +9,4 @@ jobs:
         name: Saturn7-VPN-APK
         path: V2rayNG/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
+        if-no-files-found: error
